@@ -59,6 +59,7 @@ function App() {
     connectionApi.connection?.on("JoinedToOtherRoom", (room: IRoom) => {
       addUserToRoom(room);
     });
+
     connectionApi.connection?.on("LeavedFromOtherRoom", (room: IRoom) => {
       addUserToRoom(room);
     });
