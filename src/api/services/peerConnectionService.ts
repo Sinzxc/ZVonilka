@@ -18,16 +18,15 @@ const iceServers = [
 export class PeerConnectionService {
   peerConnections: PeerConnection[] = [];
   currentUser: IUser | null = null;
+  isMuted: boolean = false;
+  isSpeakerMuted: boolean = false;
 
   createNewPeerConnection = async (userId: number) => {
     const newPeerConnection = new RTCPeerConnection({ iceServers });
 
     newPeerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        connectionApi.connection?.invoke(
-          "SendCandidate",
-          event.candidate
-        );
+        connectionApi.connection?.invoke("SendCandidate", event.candidate);
       }
     };
 
@@ -37,7 +36,6 @@ export class PeerConnectionService {
       ) as HTMLAudioElement;
 
       console.log("Remote audio for user with id:" + userId);
-      
 
       if (remoteAudio && event.streams[0]) {
         remoteAudio.srcObject = event.streams[0];
@@ -51,7 +49,11 @@ export class PeerConnectionService {
 
     if (userId) {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          noiseSuppression: true,
+          echoCancellation: true,
+          autoGainControl: true,
+        },
       });
 
       stream.getTracks().forEach((track) => {
@@ -79,7 +81,6 @@ export class PeerConnectionService {
     );
     if (connectionToRemove) {
       connectionToRemove.connection.close();
-    } else {
     }
 
     this.peerConnections = this.peerConnections.filter(
@@ -102,6 +103,50 @@ export class PeerConnectionService {
     });
   };
 
+  setMicrophoneState = (state: boolean) => {
+    this.isMuted = state;
+
+    console.log(`Setting microphone muted state to: ${this.isMuted}`);
+
+    this.peerConnections.forEach((connection) => {
+      if (connection.stream) {
+        const audioTracks = connection.stream.getAudioTracks();
+        console.log(
+          `Found ${audioTracks.length} audio tracks for connection ${connection.userId}`
+        );
+
+        audioTracks.forEach((track) => {
+          track.enabled = !this.isMuted;
+          console.log(`Set track ${track.id} enabled to ${!this.isMuted}`);
+        });
+      }
+    });
+
+    return this.isMuted;
+  };
+
+  setSpeakerState = (state: boolean) => {
+    this.isSpeakerMuted = state;
+
+    // Set volume for all remote audio elements
+    this.peerConnections.forEach((connection) => {
+      const remoteAudio = document.getElementById(
+        `remoteAudio-${connection.userId}`
+      ) as HTMLAudioElement;
+
+      if (remoteAudio) {
+        remoteAudio.muted = this.isSpeakerMuted;
+        console.log(
+          `Set speaker for user ${connection.userId} to ${
+            this.isSpeakerMuted ? "muted" : "unmuted"
+          }`
+        );
+      }
+    });
+
+    return this.isSpeakerMuted;
+  };
+
   removeAllPeerConnections = () => {
     this.peerConnections.map((connection: PeerConnection) => {
       this.removePeerConnection(connection.userId);
@@ -111,10 +156,7 @@ export class PeerConnectionService {
   subscribeOnEvents = () => {
     connectionApi.connection?.on(
       "ReceiveOffer",
-      async (response: {
-        offer: any;
-        fromUserId: number;
-      }) => {
+      async (response: { offer: any; fromUserId: number }) => {
         const userConnection = await this.getPeerConnectionByUserId(
           response.fromUserId
         );
@@ -147,7 +189,7 @@ export class PeerConnectionService {
         const userConnection = await this.getPeerConnectionByUserId(
           response.fromUserId
         );
-        
+
         if (userConnection) {
           await userConnection.connection.setRemoteDescription(
             new RTCSessionDescription(response.answer)

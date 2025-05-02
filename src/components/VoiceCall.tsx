@@ -1,4 +1,3 @@
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMessage,
@@ -15,46 +14,21 @@ import { useEffect, useRef, useState } from "react";
 const VoiceCall = ({
   currentRoom,
   setIsInCall,
+  IsMicrophoneMuted,
+  IsFullMuted,
+  setIsMicrophoneMuted,
+  setIsFullMuted,
 }: {
   currentRoom: IRoom | null | undefined;
   setCurrentRoom: (room: IRoom | null) => void;
   setIsInCall: (value: boolean) => void;
+  setIsMicrophoneMuted: (value: boolean) => void;
+  setIsFullMuted: (value: boolean) => void;
+  IsMicrophoneMuted: boolean;
+  IsFullMuted: boolean;
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isMicMuted, setIsMicMuted] = useState(false);
-  const localStreamRef = useRef<MediaStream | null>(null);
   const baseURL = import.meta.env.VITE_PUBLIC_API_URL;
-
-  // Получаем локальный аудиопоток один раз при входе в звонок
-  useEffect(() => {
-    if (currentRoom) {
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        localStreamRef.current = stream;
-        // mute если нужно
-        stream.getAudioTracks().forEach((track) => {
-          track.enabled = !isMicMuted;
-        });
-      });
-    }
-    return () => {
-      // Останавливаем треки при выходе
-      localStreamRef.current?.getTracks().forEach((track) => track.stop());
-      localStreamRef.current = null;
-    };
-  }, [currentRoom]);
-
-  // Слежение за изменением mute
-  useEffect(() => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((track) => {
-        track.enabled = !isMicMuted;
-      });
-    }
-  }, [isMicMuted]);
-
-  const toggleMic = () => {
-    setIsMicMuted((prev) => !prev);
-  };
 
   const onRoomLeave = () => {
     connectionApi.connection?.invoke("LeaveRoom");
@@ -106,17 +80,44 @@ const VoiceCall = ({
               <div className="flex gap-4 justify-center">
                 <button
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
-                    isMicMuted ? "bg-gray-400" : "bg-gray-600 hover:bg-gray-500"
+                    IsMicrophoneMuted
+                      ? "bg-gray-400"
+                      : "bg-gray-600 hover:bg-gray-500"
                   }`}
-                  onClick={toggleMic}
-                  title={isMicMuted ? "Включить микрофон" : "Выключить микрофон"}
+                  onClick={() => {
+                    setIsMicrophoneMuted(!IsMicrophoneMuted);
+                    setIsFullMuted(false);
+                  }}
+                  title={
+                    IsMicrophoneMuted
+                      ? "Включить микрофон"
+                      : "Выключить микрофон"
+                  }
                 >
-                  <FontAwesomeIcon icon={faMicrophone} style={{ opacity: isMicMuted ? 0.4 : 1 }} />
+                  <FontAwesomeIcon
+                    icon={faMicrophone}
+                    style={{ opacity: IsMicrophoneMuted ? 0.4 : 1 }}
+                  />
                 </button>
-                <button className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white hover:bg-gray-500">
-                  <FontAwesomeIcon icon={faHeadphones} />
+                <button
+                  onClick={() => {
+                    setIsFullMuted(!IsFullMuted);
+                  }}
+                  className={`w-10 h-10 rounded-full  flex items-center justify-center text-white hover:bg-gray-500 ${
+                    IsFullMuted
+                      ? "bg-gray-400"
+                      : "bg-gray-600 hover:bg-gray-500"
+                  }`}
+                >
+                  <FontAwesomeIcon
+                    style={{ opacity: IsFullMuted ? 0.4 : 1 }}
+                    icon={faHeadphones}
+                  />
                 </button>
-                <button className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white hover:bg-gray-500">
+                <button
+                  onClick={() => alert("Ну не тыкай")}
+                  className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white hover:bg-gray-500"
+                >
                   <FontAwesomeIcon icon={faVideoCamera} />
                 </button>
                 <button

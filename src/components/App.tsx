@@ -25,9 +25,17 @@ function App() {
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [currentRoom, setCurrentRoom] = useState<IRoom | null>();
   const [isInCall, setIsInCall] = useState<boolean>(false);
+  const [isMicrophoneMuted, setIsMicrophoneMuted] = useState<boolean>(false);
+  const [isFullMuted, setIsFullMuted] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
   authApi.setNavigate(navigate);
+
+  const updateRooms = (room: IRoom) => {
+    setRooms((prevRooms) => {
+      return prevRooms.map((r) => (r.id === room.id ? room : r));
+    });
+  };
 
   useEffect(() => {
     const initialize = async () => {
@@ -104,6 +112,10 @@ function App() {
                 setCurrentRoom={setCurrentRoom}
                 setIsInCall={setIsInCall}
                 currentRoom={currentRoom}
+                IsFullMuted={isFullMuted}
+                IsMicrophoneMuted={isMicrophoneMuted}
+                setIsFullMuted={setIsFullMuted}
+                setIsMicrophoneMuted={setIsMicrophoneMuted}
               />
             ) : (
               <NotSelected />
@@ -124,6 +136,9 @@ function App() {
         setCurrentRoom={setCurrentRoom}
         currentUser={currentUser}
         isInCall={isInCall}
+        updateRooms={updateRooms}
+        IsMicrophoneMuted={isMicrophoneMuted}
+        IsFullMuted={isFullMuted}
       />
     </div>
   );
