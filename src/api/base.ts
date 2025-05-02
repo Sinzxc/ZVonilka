@@ -1,13 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { IApiError } from "../types/errorTypes";
-
 export const API_URL = `${import.meta.env.VITE_PUBLIC_API_URL}/Api`;
 
 let token: string | null = null;
 if (typeof window !== "undefined") {
   token = localStorage.getItem("token");
+}
+
+interface IApiError {
+  message: string;
+  code: number;
+  data?: any;
 }
 
 class ApiInstance {

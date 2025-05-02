@@ -9,7 +9,7 @@ import {
 import Chat from "./Chat";
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 const VoiceCall = ({
   currentRoom,

@@ -225,6 +225,7 @@ export class PeerConnectionService {
     );
 
     connectionApi.connection?.on("JoinedRoom", (user: IUser, room: IRoom) => {
+      console.log(`[PeerConnectionService] User ${user.id} joined room ${room.id}`);
       this.createNewPeerConnection(user.id);
     });
 

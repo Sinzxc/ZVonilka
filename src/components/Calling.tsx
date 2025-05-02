@@ -49,6 +49,7 @@ export default function Calling({
       }
     );
     connectionApi.connection?.on("LeavedRoom", (user: IUser, room: IRoom) => {
+      console.log(`[Calling] User ${user.login} leaved room`);
       setCurrentRoom(room);
       updateRooms(room);
       console.log(`[Calling] Leaved room: ${room.title}`);

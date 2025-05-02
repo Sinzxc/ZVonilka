@@ -3,9 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import {
   faHashtag,
-  faPaperclip,
   faFaceSmile,
-  faGift,
   faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
 

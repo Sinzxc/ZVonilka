@@ -17,7 +17,7 @@ class RoomsApi {
         `/Room/CreateRoom?title=${roomName}`
       );
       console.log(response);
-    } catch (error) {
+    } catch (error: any) {
       switch (error.code) {
         case 400:
           alert("Комната уже существует");
@@ -38,7 +38,7 @@ class RoomsApi {
       }>(`/Room/GetRooms`); 
       console.log(response);
       return response.rooms;
-    } catch (error) {
+    } catch (error: any) {
       switch (error.code) {
         case 404:
           alert("Комнаты не найдены");

@@ -10,8 +10,9 @@ class ConnectionApi {
       const signalRServerUrl = import.meta.env.VITE_SIGNALR_SERVER;
       console.log("SignalR Server URL:", signalRServerUrl);
       const token = localStorage.getItem("token");
+
       const hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(signalRServerUrl, { accessTokenFactory: () => token })
+        .withUrl(signalRServerUrl, { accessTokenFactory: () => token || "" })
         .configureLogging(signalR.LogLevel.Debug)
         .withAutomaticReconnect()
         .build();
@@ -26,7 +27,7 @@ class ConnectionApi {
       return () => {
         hubConnection.stop();
       };
-    } catch (error) {
+    } catch (error: any) {
       switch (error.code) {
         default:
           throw new Error("Неизвестная ошибка подключения");

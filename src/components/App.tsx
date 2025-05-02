@@ -12,7 +12,6 @@ import Profile from "./Profile";
 import IRoom from "../types/IRoom";
 import NotSelected from "./NotSelected";
 import IUser from "../types/IUser";
-import mockUsers from "../mock/mockUsers";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import { authApi } from "../api/services/authApi";
@@ -21,7 +20,7 @@ import { roomsApi } from "../api/services/roomsApi";
 import Calling from "./Calling";
 
 function App() {
-  const [currentUser, setCurrentUser] = useState<IUser>(mockUsers[0]);
+  const [currentUser, setCurrentUser] = useState<IUser>();
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [currentRoom, setCurrentRoom] = useState<IRoom | null>();
   const [isInCall, setIsInCall] = useState<boolean>(false);
@@ -97,7 +96,7 @@ function App() {
         >
           <ChannelList
             rooms={rooms}
-            currentUser={currentUser}
+            currentUser={currentUser!}
             setCurrentRoom={setCurrentRoom}
             setIsInCall={setIsInCall}
           />
@@ -124,7 +123,7 @@ function App() {
         />
         <Route
           path="/profile"
-          element={<Profile user={currentUser} setUser={setCurrentUser} />}
+          element={<Profile user={currentUser!} setUser={setCurrentUser} />}
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -134,7 +133,7 @@ function App() {
         currentRoom={currentRoom}
         addUserToRoom={addUserToRoom}
         setCurrentRoom={setCurrentRoom}
-        currentUser={currentUser}
+        currentUser={currentUser!}
         isInCall={isInCall}
         updateRooms={updateRooms}
         IsMicrophoneMuted={isMicrophoneMuted}

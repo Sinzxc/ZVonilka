@@ -21,7 +21,7 @@ class AuthApi {
       localStorage.setItem("user", JSON.stringify(response.user));
       this.navigate("/");
       window.location.reload();
-    } catch (error) {
+    } catch (error: any) {
       switch (error.code) {
         case 404:
           throw new Error("Не верные данные");
@@ -40,9 +40,9 @@ class AuthApi {
         `/Users/Register?login=${login}&password=${password}`
       );
       this.navigate("/login");
-    } catch (error) {
+    } catch (error: any) {
       let errorString = "";
-      error.data.errors.map((error) => {
+      error.data.errors.map((error: any) => {
         errorString = errorString + "\n" + error;
       });
       throw new Error(errorString);
@@ -73,7 +73,7 @@ class AuthApi {
       this.currentUser = data.user;
       localStorage.setItem("user", JSON.stringify(data.user));
       return data.user;
-    } catch (error) {
+    } catch (error: any) {
       switch (error.code) {
         case 404:
           throw new Error("Пользователь не найден");
