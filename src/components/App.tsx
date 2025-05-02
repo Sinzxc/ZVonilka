@@ -41,7 +41,9 @@ function App() {
       if (location.pathname != "/login" && location.pathname != "/register") {
         const isAuthorized = await authApi.checkAuth();
         if (isAuthorized) {
+          console.log(1);
           const user = await authApi.getUser();
+          
           connectionApi.connect();
           if (user != undefined) setCurrentUser(user as IUser);
         }
@@ -49,6 +51,7 @@ function App() {
     };
     initialize();
   }, [location]);
+  
 
   useEffect(() => {
     const getRooms = async () => {

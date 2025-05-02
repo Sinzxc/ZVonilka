@@ -109,7 +109,7 @@ const ChannelList = ({
       >
         <div className="flex items-center">
           <div className="w-8 h-8 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
-            {currentUser.avatarUrl ? (
+            {currentUser && currentUser.avatarUrl ? (
               <img
                 src={baseURL + "/avatars/" + currentUser.avatarUrl}
                 alt=""
@@ -117,13 +117,13 @@ const ChannelList = ({
               />
             ) : (
               <span className="text-sm font-medium">
-                {currentUser.login[0].toUpperCase()}
+                {currentUser && currentUser.login[0].toUpperCase()}
               </span>
             )}
           </div>
           <div className="ml-2">
             <div className="text-sm font-medium text-white">
-              {currentUser.login}
+              {currentUser && currentUser.login}
             </div>
           </div>
         </div>
