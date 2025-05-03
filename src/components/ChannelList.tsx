@@ -25,7 +25,6 @@ const ChannelList = ({
   setIsInCall,
 }: ChannelListProps) => {
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_PUBLIC_API_URL;
   const addChannel = () => {
     const roomName = prompt("Введите название комнаты:", "Новая комната");
 
