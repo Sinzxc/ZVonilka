@@ -81,7 +81,7 @@ const ChannelList = ({
                         <div className="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
                           {user.avatarUrl ? (
                             <img
-                              src={baseURL + "/avatars/" + user.avatarUrl}
+                              src={"/avatars/" + user.avatarUrl}
                               alt=""
                               className="w-full h-full object-cover"
                             />
@@ -111,7 +111,7 @@ const ChannelList = ({
           <div className="w-8 h-8 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
             {currentUser && currentUser.avatarUrl ? (
               <img
-                src={baseURL + "/avatars/" + currentUser.avatarUrl}
+                src={"/avatars/" + currentUser.avatarUrl}
                 alt=""
                 className="w-full h-full object-cover"
               />

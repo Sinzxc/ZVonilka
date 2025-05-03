@@ -111,7 +111,7 @@ const Profile = ({ user, setUser }: ProfileProps) => {
                 <label htmlFor="avatar-upload" className="cursor-pointer">
                   {user.avatarUrl ? (
                     <img
-                      src={baseURL + "/avatars/" + user.avatarUrl}
+                      src={"/avatars/" + user.avatarUrl}
                       className="h-full w-full object-cover rounded-md"
                       alt=""
                     />

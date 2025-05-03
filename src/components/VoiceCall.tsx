@@ -62,7 +62,7 @@ const VoiceCall = ({
                       <div className="w-50 h-50 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
                         {user.avatarUrl ? (
                           <img
-                            src={baseURL + "/avatars/" + user.avatarUrl}
+                            src={"/avatars/" + user.avatarUrl}
                             alt=""
                             className="w-full h-full object-cover"
                           />
