@@ -16,7 +16,6 @@ const Profile = ({ user, setUser }: ProfileProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_PUBLIC_API_URL;
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.item(0);

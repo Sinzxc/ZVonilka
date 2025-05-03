@@ -28,7 +28,6 @@ const VoiceCall = ({
   IsFullMuted: boolean;
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const baseURL = import.meta.env.VITE_PUBLIC_API_URL;
 
   const onRoomLeave = () => {
     connectionApi.connection?.invoke("LeaveRoom");
