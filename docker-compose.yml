@@ -6,3 +6,4 @@ services:
       - "80:80"
     volumes:
       - /etc/vibecast/ssl/:/etc/vibecast/ssl/:ro
+      - /etc/vibecast/wwwroot/avatars/:/etc/vibecast/wwwroot/avatars/
