@@ -42,6 +42,7 @@ export default function useWebRTC(connection: HubConnection) {
             }
 
             await peer.setRemoteDescription(new RTCSessionDescription(offer));
+            
             const pending = pendingCandidates.current.get(fromUserId);
             if (pending) {
                 pending.forEach(candidate => {
@@ -61,7 +62,9 @@ export default function useWebRTC(connection: HubConnection) {
 
             const peer = peerConnections.current.get(fromUserId);
 
-            console.log("Find peer: ", peer);
+            if (peer) {
+                await peer.setRemoteDescription(new RTCSessionDescription(answer));
+            }
 
             const pending = pendingCandidates.current.get(fromUserId);
             if (pending) {
@@ -69,10 +72,6 @@ export default function useWebRTC(connection: HubConnection) {
                     peer?.addIceCandidate(new RTCIceCandidate(candidate));
                 });
                 pendingCandidates.current.delete(fromUserId);
-            }
-            
-            if (peer) {
-                await peer.setRemoteDescription(new RTCSessionDescription(answer));
             }
         });
 
@@ -85,11 +84,10 @@ export default function useWebRTC(connection: HubConnection) {
             if (peer?.remoteDescription && peer.remoteDescription.type) {
                 await peer.addIceCandidate(new RTCIceCandidate(candidate));
             } else {
-                const list = pendingCandidates.current.get(fromUserId)!;
-                if (!list) {
-                    pendingCandidates.current.set(fromUserId, list);
-                }
-                list?.push(candidate);
+            if (!pendingCandidates.current.has(fromUserId)) {
+                pendingCandidates.current.set(fromUserId, []);
+            }
+            pendingCandidates.current.get(fromUserId)!.push(candidate);
             }
         });
 
