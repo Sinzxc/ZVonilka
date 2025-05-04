@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { HubConnection } from "@microsoft/signalr";
+var freeice = require('freeice');
 
 type PeerConnections = Map<number, RTCPeerConnection>;
 
@@ -130,13 +131,9 @@ export default function useWebRTC(connection: HubConnection) {
 
     function createPeerConnection(userId: number): RTCPeerConnection {
         const peer = new RTCPeerConnection({
-            iceServers: [
-                {
-                    urls: import.meta.env.VITE_TURN_SERVER_IP,
-                    username: import.meta.env.VITE_TURN_SERVER_USERNAME,
-                    credential: import.meta.env.VITE_TURN_SERVER_CREDENTIAL,
-                  },
-            ],
+            iceCandidatePoolSize: 40,
+            iceTransportPolicy: "all",
+            iceServers: freeice()
         });
 
         peer.onicecandidate = event => {            
@@ -166,8 +163,31 @@ export default function useWebRTC(connection: HubConnection) {
               }
         };
 
+        peer.oniceconnectionstatechange = () => {
+            console.log(`ICE connection state: ${peer.iceConnectionState}`);
+            if (peer.iceConnectionState === "failed") {
+                console.error(`ICE connection failed for user ${userId}`);
+                // Можно попробовать перезапустить соединение или отправить запрос на новый кандидата
+                restartIceConnection(peer, userId);
+            }
+        };
+
         peerConnections.current.set(userId, peer);
         return peer;
+    }
+
+    function restartIceConnection(peer: RTCPeerConnection, userId: number) {
+        console.log(`Attempting to restart ICE connection for user ${userId}`);
+        
+        // Закрытие старого соединения
+        peer.close();
+        peerConnections.current.delete(userId);
+    
+        // Попробуем создать новое соединение
+        const newPeer = createPeerConnection(userId);
+        peerConnections.current.set(userId, newPeer);
+
+        createOfferToUser(userId);
     }
 
     async function createOfferToUser(targetUserId: number) {
