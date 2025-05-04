@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import IUser from "../types/IUser";
-import { peerConnectionService } from "../api/services/peerConnectionService";
+import useWebRTC from "../api/services/useWebRTC";
 
 export default function Calling({
   currentRoom,
@@ -22,24 +22,8 @@ export default function Calling({
   IsMicrophoneMuted: boolean;
   IsFullMuted: boolean;
 }) {
+  useWebRTC(connectionApi.connection!);
   useEffect(() => {
-    if (isInCall && currentRoom) {
-      peerConnectionService.createPeerConnections(currentRoom, currentUser);
-    } else {
-      peerConnectionService.removeAllPeerConnections();
-    }
-  }, [isInCall]);
-
-  useEffect(() => {
-    peerConnectionService.setMicrophoneState(IsMicrophoneMuted);
-    if (IsFullMuted) peerConnectionService.setMicrophoneState(true);
-  }, [IsMicrophoneMuted]);
-  useEffect(() => {
-    peerConnectionService.setSpeakerState(IsFullMuted);
-  }, [IsFullMuted]);
-
-  useEffect(() => {
-    peerConnectionService.subscribeOnEvents();
     connectionApi.connection?.on(
       "JoinedRoom",
       (response: { user: IUser; room: IRoom }) => {
@@ -48,6 +32,7 @@ export default function Calling({
         console.log(`[Calling] Joined room: ${response.room.title}`);
       }
     );
+
     connectionApi.connection?.on("LeavedRoom", (user: IUser, room: IRoom) => {
       console.log(`[Calling] User ${user.login} leaved room`);
       setCurrentRoom(room);
