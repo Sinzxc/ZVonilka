@@ -78,16 +78,26 @@ export default function useWebRTC(connection: HubConnection) {
         connection.on("ReceiveCandidate", async ({ candidate, fromUserId }) => {
             console.log("Received candidate from", fromUserId);
 
-            const peer = peerConnections.current.get(fromUserId);
-            console.log("Receive candidate from", fromUserId, "candidate:", candidate);
-            
-            if (peer?.remoteDescription && peer.remoteDescription.type) {
-                await peer.addIceCandidate(new RTCIceCandidate(candidate));
-            } else {
-            if (!pendingCandidates.current.has(fromUserId)) {
-                pendingCandidates.current.set(fromUserId, []);
+            let peer = peerConnections.current.get(fromUserId);
+
+            if (!peer) {
+                console.log(`Peer connection not found for user ${fromUserId}, creating...`);
+                peer = createPeerConnection(fromUserId);
             }
-            pendingCandidates.current.get(fromUserId)!.push(candidate);
+
+            if (peer.remoteDescription && peer.remoteDescription.type) {
+                try {
+                    await peer.addIceCandidate(new RTCIceCandidate(candidate));
+                    console.log(`Candidate successfully added for user ${fromUserId}`);
+                } catch (error) {
+                    console.error(`Error adding candidate for user ${fromUserId}`, error);
+                }
+            } else {
+                console.log(`Remote description not set yet for user ${fromUserId}, storing candidate`);
+                if (!pendingCandidates.current.has(fromUserId)) {
+                    pendingCandidates.current.set(fromUserId, []);
+                }
+                pendingCandidates.current.get(fromUserId)!.push(candidate);
             }
         });
 
@@ -154,8 +164,6 @@ export default function useWebRTC(connection: HubConnection) {
         const offer = await peer.createOffer();
         await peer.setLocalDescription(offer);
 
-        await waitForIceGatheringComplete(peer);
-
         await connection.invoke("SendOffer", offer, targetUserId);
     }
 
@@ -167,22 +175,6 @@ export default function useWebRTC(connection: HubConnection) {
             console.error("Error getting user media: ", error);
             return null;
         }
-    }
-
-    function waitForIceGatheringComplete(peer: RTCPeerConnection) {
-        return new Promise<void>(resolve => {
-            if (peer.iceGatheringState === 'complete') {
-                resolve();
-            } else {
-                const checkState = () => {
-                    if (peer.iceGatheringState === 'complete') {
-                        peer.removeEventListener('icegatheringstatechange', checkState);
-                        resolve();
-                    }
-                };
-                peer.addEventListener('icegatheringstatechange', checkState);
-            }
-        });
     }
 
     return {
