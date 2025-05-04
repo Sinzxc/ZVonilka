@@ -5,7 +5,9 @@ type PeerConnections = Map<number, RTCPeerConnection>;
 
 export default function useWebRTC(connection: HubConnection) {
     const peerConnections = useRef<PeerConnections>(new Map());
+    // @ts-ignore
     const [remoteStreams, setRemoteStreams] = useState<Map<number, MediaStream>>(new Map());
+    // @ts-ignore
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [otherUsers, setOtherUsers] = useState<number[]>([]);
 

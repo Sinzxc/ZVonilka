@@ -9,8 +9,11 @@ export default function Calling({
   currentUser,
   setCurrentRoom,
   updateRooms,
+  // @ts-ignore
   isInCall,
+  // @ts-ignore
   IsMicrophoneMuted,
+  // @ts-ignore
   IsFullMuted,
 }: {
   currentRoom: IRoom | null | undefined;
