@@ -29,6 +29,25 @@ export default function useWebRTC(connection: HubConnection) {
             }
         });
 
+        // @ts-ignore
+        connection.on("LeavedRoom", ({ currentUser, room }: any) => {
+            console.log(`User ${currentUser.id} left the room`);
+        
+            const peer = peerConnections.current.get(currentUser.id);
+            if (peer) {
+                peer.close();
+                peerConnections.current.delete(currentUser.id); 
+            }
+
+            pendingCandidates.current.delete(currentUser.id);
+            setOtherUsers(prevUsers => prevUsers.filter(userId => userId !== currentUser.id));
+
+            const remoteAudio = document.getElementById(`remoteAudio-${currentUser.id}`) as HTMLAudioElement;
+            if (remoteAudio) {
+                remoteAudio.srcObject = null;
+            }
+        });
+
         connection.on("ReceiveOffer", async ({ offer, fromUserId }) => {
             console.log("Received offer from", fromUserId);
 
