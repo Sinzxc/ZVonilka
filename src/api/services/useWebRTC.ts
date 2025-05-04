@@ -42,7 +42,7 @@ export default function useWebRTC(connection: HubConnection) {
             }
 
             await peer.setRemoteDescription(new RTCSessionDescription(offer));
-            
+
             const pending = pendingCandidates.current.get(fromUserId);
             if (pending) {
                 pending.forEach(candidate => {
@@ -154,6 +154,8 @@ export default function useWebRTC(connection: HubConnection) {
         const offer = await peer.createOffer();
         await peer.setLocalDescription(offer);
 
+        await waitForIceGatheringComplete(peer);
+
         await connection.invoke("SendOffer", offer, targetUserId);
     }
 
@@ -165,6 +167,22 @@ export default function useWebRTC(connection: HubConnection) {
             console.error("Error getting user media: ", error);
             return null;
         }
+    }
+
+    function waitForIceGatheringComplete(peer: RTCPeerConnection) {
+        return new Promise<void>(resolve => {
+            if (peer.iceGatheringState === 'complete') {
+                resolve();
+            } else {
+                const checkState = () => {
+                    if (peer.iceGatheringState === 'complete') {
+                        peer.removeEventListener('icegatheringstatechange', checkState);
+                        resolve();
+                    }
+                };
+                peer.addEventListener('icegatheringstatechange', checkState);
+            }
+        });
     }
 
     return {
