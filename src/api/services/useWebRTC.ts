@@ -10,6 +10,7 @@ export default function useWebRTC(connection: HubConnection) {
     // @ts-ignore
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [otherUsers, setOtherUsers] = useState<number[]>([]);
+    const pendingCandidates = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
 
     useEffect(() => {
         if (!connection) return;
@@ -41,6 +42,14 @@ export default function useWebRTC(connection: HubConnection) {
             }
 
             await peer.setRemoteDescription(new RTCSessionDescription(offer));
+            const pending = pendingCandidates.current.get(fromUserId);
+            if (pending) {
+                pending.forEach(candidate => {
+                    peer?.addIceCandidate(new RTCIceCandidate(candidate));
+                });
+                pendingCandidates.current.delete(fromUserId);
+            }
+
             const answer = await peer.createAnswer();
             await peer.setLocalDescription(answer);
 
@@ -53,6 +62,14 @@ export default function useWebRTC(connection: HubConnection) {
             const peer = peerConnections.current.get(fromUserId);
 
             console.log("Find peer: ", peer);
+
+            const pending = pendingCandidates.current.get(fromUserId);
+            if (pending) {
+                pending.forEach(candidate => {
+                    peer?.addIceCandidate(new RTCIceCandidate(candidate));
+                });
+                pendingCandidates.current.delete(fromUserId);
+            }
             
             if (peer) {
                 await peer.setRemoteDescription(new RTCSessionDescription(answer));
@@ -65,8 +82,14 @@ export default function useWebRTC(connection: HubConnection) {
             const peer = peerConnections.current.get(fromUserId);
             console.log("Receive candidate from", fromUserId, "candidate:", candidate);
             
-            if (peer && candidate) {
+            if (peer?.remoteDescription && peer.remoteDescription.type) {
                 await peer.addIceCandidate(new RTCIceCandidate(candidate));
+            } else {
+                const list = pendingCandidates.current.get(fromUserId)!;
+                if (!list) {
+                    pendingCandidates.current.set(fromUserId, list);
+                }
+                list?.push(candidate);
             }
         });
 
