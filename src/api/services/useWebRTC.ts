@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { HubConnection } from "@microsoft/signalr";
-var freeice = require('freeice');
 
 type PeerConnections = Map<number, RTCPeerConnection>;
 
@@ -133,7 +132,17 @@ export default function useWebRTC(connection: HubConnection) {
         const peer = new RTCPeerConnection({
             iceCandidatePoolSize: 40,
             iceTransportPolicy: "all",
-            iceServers: freeice()
+            iceServers: [
+                {
+                    urls: import.meta.env.VITE_TURN_SERVER_IP,
+                    username: import.meta.env.VITE_TURN_SERVER_USERNAME,
+                    credential: import.meta.env.VITE_TURN_SERVER_CREDENTIAL,
+                  },
+                  { urls: "stun:stun.l.google.com:19302" },
+                { urls: "stun:stun1.l.google.com:19302" },
+                { urls: "stun:stun.stunprotocol.org:3478" },
+                {urls: "stun:stun2.l.google.com:19302"}
+            ],
         });
 
         peer.onicecandidate = event => {            
