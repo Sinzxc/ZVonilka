@@ -32,6 +32,13 @@ export default function useWebRTC(connection: HubConnection) {
             console.log("Received offer from", fromUserId);
 
             const peer = createPeerConnection(fromUserId);
+            const localStream = await getLocalStream();
+
+            if (localStream) {
+                localStream.getTracks().forEach(track => {
+                    peer.addTrack(track, localStream!);
+                });
+            }
 
             await peer.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await peer.createAnswer();
