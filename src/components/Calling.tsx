@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import IUser from "../types/IUser";
-import useWebRTC from "../api/services/useWebRTC";
+import { useSimplePeer } from "../api/services/useWebRTC";
 
 export default function Calling({
   currentRoom,
@@ -25,7 +25,11 @@ export default function Calling({
   IsMicrophoneMuted: boolean;
   IsFullMuted: boolean;
 }) {
-  useWebRTC(connectionApi.connection!);
+
+  console.log(currentUser);
+  
+  useSimplePeer(currentUser.id, connectionApi.connection!);
+
   useEffect(() => {
     connectionApi.connection?.on(
       "JoinedRoom",
@@ -61,6 +65,7 @@ export default function Calling({
               id={`remoteAudio-${user.id}`}
               autoPlay
               playsInline
+              muted={false}
               className="hidden"
             ></audio>
           ))}

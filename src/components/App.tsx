@@ -18,6 +18,7 @@ import { authApi } from "../api/services/authApi";
 import { connectionApi } from "../api/services/connectionApi";
 import { roomsApi } from "../api/services/roomsApi";
 import Calling from "./Calling";
+import SimplePeer from "simple-peer";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<IUser>();
@@ -90,6 +91,7 @@ function App() {
       return updatedRooms;
     });
   };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {location.pathname != "/login" && location.pathname != "/register" && (
@@ -132,7 +134,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Calling
+      {currentUser && connectionApi.connection && 
+        <Calling
         currentRoom={currentRoom}
         addUserToRoom={addUserToRoom}
         setCurrentRoom={setCurrentRoom}
@@ -142,6 +145,7 @@ function App() {
         IsMicrophoneMuted={isMicrophoneMuted}
         IsFullMuted={isFullMuted}
       />
+      }
     </div>
   );
 }
