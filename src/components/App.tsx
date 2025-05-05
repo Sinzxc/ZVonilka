@@ -18,7 +18,6 @@ import { authApi } from "../api/services/authApi";
 import { connectionApi } from "../api/services/connectionApi";
 import { roomsApi } from "../api/services/roomsApi";
 import Calling from "./Calling";
-import SimplePeer from "simple-peer";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<IUser>();
