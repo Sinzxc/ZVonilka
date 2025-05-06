@@ -54,11 +54,20 @@ const VoiceCall = ({
           {/* Call Content */}
           <div className="flex-1 flex items-center justify-center">
             <div className="text-gray-400 text-center">
-              <div className="grid grid-cols-3 gap-10 mb-10">
+              <div
+                className={`flex flex-wrap justify-center gap-10 mb-10 ${
+                  currentRoom?.users && currentRoom.users.length > 3
+                    ? "max-w-[600px]"
+                    : ""
+                }`}
+              >
                 {currentRoom?.users && (
                   <>
                     {currentRoom.users.map((user) => (
-                      <div className="w-50 h-50 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
+                      <div
+                        key={user.id}
+                        className="w-50 h-50 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden"
+                      >
                         {user.avatarUrl ? (
                           <img
                             src={"/avatars/" + user.avatarUrl}
