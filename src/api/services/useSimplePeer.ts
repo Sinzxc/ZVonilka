@@ -18,6 +18,9 @@ interface SimplePeerProps {
 const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
     const peers = useRef<Map<number, SimplePeer.Instance>>(null);
     const media = useRef<MediaStream | null>(null);
+    const pendingCandidates = useRef<Map<number, any[]>>(new Map());
+    // Добавим таймеры для отслеживания "мертвых" peer'ов
+    const peerTimeouts = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
     useEffect(() => {
         if(!peers.current) {
@@ -30,6 +33,14 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
         hub.on("ReceiveAnswer", receiveAnswer);
         hub.on("ReceiveCandidate", receiveCandidate);
         hub.on("JoinedRoom", joinedRoom);
+
+        // ОТПИСКА!
+        return () => {
+            hub.off("ReceiveOffer", receiveOffer);
+            hub.off("ReceiveAnswer", receiveAnswer);
+            hub.off("ReceiveCandidate", receiveCandidate);
+            hub.off("JoinedRoom", joinedRoom);
+        };
     }, []);
 
     const log = (type: LogEntry["type"], message: string) => {
@@ -65,6 +76,12 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
         const peer = peers.current!.get(response.fromUserId);
         if(peer) {
             peer.signal(response.candidate);
+        } else {
+            // Добавляем в буфер, если peer ещё не создан
+            if (!pendingCandidates.current.has(response.fromUserId)) {
+                pendingCandidates.current.set(response.fromUserId, []);
+            }
+            pendingCandidates.current.get(response.fromUserId)!.push(response.candidate);
         }
     }
 
@@ -78,13 +95,16 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
       };
     
     const addPeer = async (uid: number, createOffer: boolean) => {
+        if (peers.current!.has(uid)) {
+            log("info", `Peer для пользователя ${uid} уже существует`);
+            return;
+        }
         if(!media.current) {
             const localMedia = await getMedia();
             if(localMedia) {
                 media.current = localMedia;
             }
         }
-        
         const peer = new SimplePeer(
             {
                 initiator: createOffer, 
@@ -102,6 +122,16 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
             }
         );
 
+        // Таймаут для "мертвого" peer'а (например, 20 секунд)
+        const timeout = setTimeout(() => {
+            if (peers.current!.has(uid)) {
+                peer.destroy();
+                peers.current!.delete(uid);
+                log("error", `Peer для пользователя ${uid} уничтожен по таймауту (не подключился)`);
+            }
+        }, 20000);
+        peerTimeouts.current.set(uid, timeout);
+
         peer.on("signal", (data) => {
             if(data.type === "offer") onOffer(uid, data);
             if(data.type === "answer") onAnswer(uid, data);
@@ -110,10 +140,20 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
 
         peer.on("connect", () => {
             log("success", `Пользователь ${uid} подключен`);
+            // Если peer успешно подключился — очищаем таймаут
+            if (peerTimeouts.current.has(uid)) {
+                clearTimeout(peerTimeouts.current.get(uid)!);
+                peerTimeouts.current.delete(uid);
+            }
         })
         peer.on("close", () => {
             log("info", `Пользователь ${uid} отключен`);
             peers.current!.delete(uid);
+            // Очищаем таймаут, если есть
+            if (peerTimeouts.current.has(uid)) {
+                clearTimeout(peerTimeouts.current.get(uid)!);
+                peerTimeouts.current.delete(uid);
+            }
         })
         peer.on("error", (err) => {
             log("error", `Пользователь ${uid} ошибка: ${err}`);
@@ -126,8 +166,28 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
             audio.play();
         })
 
+        if (pendingCandidates.current.has(uid)) {
+            pendingCandidates.current.get(uid)!.forEach(candidate => {
+                peer.signal(candidate);
+            });
+            pendingCandidates.current.delete(uid);
+        }
+
         peers.current!.set(uid, peer);
     }
+
+    // Функция для ручной очистки всех peer'ов (например, при выходе из комнаты)
+    const clearAllPeers = () => {
+        peers.current?.forEach((peer, uid) => {
+            peer.destroy();
+            if (peerTimeouts.current.has(uid)) {
+                clearTimeout(peerTimeouts.current.get(uid)!);
+                peerTimeouts.current.delete(uid);
+            }
+        });
+        peers.current?.clear();
+        log("info", "Все peer'ы уничтожены");
+    };
 
     const onOffer = (uid: number, data: SimplePeer.SignalData) => {
         hub.invoke("SendOffer", data, uid);
@@ -142,7 +202,8 @@ const useSimplePeer = ({hub, currentUser, onLog}: SimplePeerProps) => {
     }
 
     return {
-        peers
+        peers,
+        clearAllPeers
     }
 }
 export default useSimplePeer;
