@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Routes,
   Route,
@@ -29,6 +29,16 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   authApi.setNavigate(navigate);
+
+  const stream = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    if(!stream.current) {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((st) => {
+        stream.current = st;
+      });
+    }
+  }, []);
 
   const updateRooms = (room: IRoom) => {
     setRooms((prevRooms) => {
@@ -90,7 +100,6 @@ function App() {
       return updatedRooms;
     });
   };
-
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {location.pathname != "/login" && location.pathname != "/register" && (
@@ -133,8 +142,9 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      {currentUser && connectionApi.connection && 
+      {currentUser && connectionApi.connection && currentRoom && stream.current &&
         <Calling
+        stream={stream.current}
         currentRoom={currentRoom}
         addUserToRoom={addUserToRoom}
         setCurrentRoom={setCurrentRoom}
