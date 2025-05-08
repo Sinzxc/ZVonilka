@@ -41,8 +41,6 @@ export default function Calling({
   const [pluginHandle, setPluginHandle] = useState<JanusJS.PluginHandle | null>(null);
   const janus = useRef<Janus>(null);
 
-  console.log(currentRoom);
-
   useEffect(() => {
     if(janus.current) return;
     Janus.init({
@@ -71,7 +69,7 @@ export default function Calling({
         plugin: "janus.plugin.audiobridge",
         success: (pluginHandle) => {
           setPluginHandle(pluginHandle);
-          const roomId = 5365663186176212;
+          const roomId = currentRoom?.id;
           handleLog({ type: "info", message: `Joining room ${roomId} as ${currentUser.login}` });
           pluginHandle.send({
             message: {
