@@ -124,11 +124,6 @@ const ChannelList = ({
                     >
                       {room.title}
                     </span>
-                    {isActive && (
-                      <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-500/80 text-white text-xs font-semibold shadow">
-                        Вы здесь
-                      </span>
-                    )}
                   </div>
                   {room.users.length !== 0 && (
                     <div className="flex flex-col gap-2">
