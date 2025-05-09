@@ -3,7 +3,7 @@ import { faVolumeHigh } from "@fortawesome/free-solid-svg-icons";
 
 export default function NotSelected() {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-700">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900">
       <FontAwesomeIcon
         icon={faVolumeHigh}
         className="text-gray-400 text-6xl mb-4"

@@ -34,7 +34,16 @@ function App() {
 
   useEffect(() => {
     if(!stream.current) {
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((st) => {
+      navigator.mediaDevices.getUserMedia(
+      { 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 2,
+        }
+      }).then((st) => {
         stream.current = st;
       });
     }

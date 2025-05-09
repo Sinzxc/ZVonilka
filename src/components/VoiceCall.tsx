@@ -34,12 +34,14 @@ const VoiceCall = ({
     setIsInCall(false);
   };
 
+  const avatarBaseUrl = import.meta.env.VITE_PUBLIC_API_URL;
+
   return (
     <div className="w-full flex">
       <div className="flex-1 flex">
-        <div className="flex-1 flex flex-col bg-gray-700">
+        <div className="flex-1 flex flex-col bg-gray-900">
           {/* Call Header */}
-          <div className="h-12 px-4 border-b border-gray-600 flex items-center justify-between">
+          <div className="h-12 px-4 border-b border-gray-800 flex items-center justify-between">
             <span className="font-bold text-white">{currentRoom?.title}</span>
             <button
               onClick={() => setIsChatOpen(!isChatOpen)}
@@ -70,7 +72,7 @@ const VoiceCall = ({
                       >
                         {user.avatarUrl ? (
                           <img
-                            src={"/avatars/" + user.avatarUrl}
+                            src={avatarBaseUrl + "/avatars/" + user.avatarUrl}
                             alt=""
                             className="w-full h-full object-cover"
                           />

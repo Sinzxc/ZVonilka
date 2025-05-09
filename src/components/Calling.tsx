@@ -73,7 +73,7 @@ export default function Calling({
           setPluginHandle(pluginHandle);
           const roomId = currentRoom?.id;
           handleLog({ type: "info", message: `Joining room ${roomId} as ${currentUser.login}` });
-          pluginHandle.setMaxBitrate(128000);
+          pluginHandle.setMaxBitrate(256000);
           pluginHandle.send({
             message: {
               request: "join",
@@ -97,6 +97,14 @@ export default function Calling({
                     videoRecv: false,
                   },
                   success: (jsep: any) => {
+                    if(jsep && jsep.sdp) {
+                      if (jsep && jsep.sdp) {
+                        let modifiedSDP = jsep.sdp
+                          .replace(/maxaveragebitrate=[0-9]+/g, '')
+                          .replace(/a=fmtp:111 (.*)/, 'a=fmtp:111 $1;maxaveragebitrate=256000;stereo=1;sprop-stereo=1');
+                        jsep.sdp = modifiedSDP;
+                      }
+                    }
                     handleLog({ type: "success", message: "Offer created" });
                     pluginHandle.send({ message: { request: "configure", muted: false }, jsep });
                   },

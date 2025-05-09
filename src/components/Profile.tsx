@@ -17,6 +17,8 @@ const Profile = ({ user, setUser }: ProfileProps) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
+  const avatarBaseUrl = import.meta.env.VITE_PUBLIC_API_URL;
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.item(0);
     if (file) {
@@ -110,7 +112,7 @@ const Profile = ({ user, setUser }: ProfileProps) => {
                 <label htmlFor="avatar-upload" className="cursor-pointer">
                   {user.avatarUrl ? (
                     <img
-                      src={"/avatars/" + user.avatarUrl}
+                      src={avatarBaseUrl + "/avatars/" + user.avatarUrl}
                       className="h-full w-full object-cover rounded-md"
                       alt=""
                     />

@@ -12,6 +12,7 @@ import { roomsApi } from "../api/services/roomsApi";
 import { connectionApi } from "../api/services/connectionApi";
 import { useState } from "react";
 import CreateRoomModal from "./modals/CreateRoomModal";
+import logo from "../img/logo.png";
 
 interface ChannelListProps {
   currentUser: IUser;
@@ -37,6 +38,8 @@ const ChannelList = ({
   const [roomName, setRoomName] = useState("");
   const [error, setError] = useState("");
 
+  const avatarBaseUrl = import.meta.env.VITE_PUBLIC_API_URL;
+
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomName.trim()) {
@@ -56,10 +59,7 @@ const ChannelList = ({
   return (
     <div className="w-full h-screen flex flex-col bg-gray-800">
       {/* Server Header */}
-      <div className="h-12 px-4 flex items-center justify-between border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors duration-200">
-        <h1 className="font-bold text-white text-lg">VibeCast</h1>
-      </div>
-
+      <img className="border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors duration-200 w-64 flex pb-2 pt-2" src={logo} alt="" />
       {/* Channel List */}
       <div className="flex-1 overflow-y-auto px-2 py-3">
         <div className="select-none">
@@ -132,7 +132,7 @@ const ChannelList = ({
                           <div className="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
                             {user.avatarUrl ? (
                               <img
-                                src={"/avatars/" + user.avatarUrl}
+                                src={avatarBaseUrl + "/avatars/" + user.avatarUrl}
                                 alt=""
                                 className="w-full h-full object-cover"
                               />
@@ -163,7 +163,7 @@ const ChannelList = ({
           <div className="w-8 h-8 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
             {currentUser && currentUser.avatarUrl ? (
               <img
-                src={"/avatars/" + currentUser.avatarUrl}
+                src={avatarBaseUrl + "/avatars/" + currentUser.avatarUrl}
                 alt=""
                 className="w-full h-full object-cover"
               />

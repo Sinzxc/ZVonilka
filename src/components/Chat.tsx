@@ -69,7 +69,7 @@ const Chat = ({ isShowAllUsers, setIsShowAllUsers }: ChatProps) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-gray-700">
+    <div className="flex-1 flex flex-col h-screen bg-gray-900">
       {/* Заголовок канала */}
       <div className="h-12 px-4 border-b border-gray-600 flex items-center justify-between shadow-sm">
         <div>
