@@ -12,7 +12,7 @@ window.adapter = adapterModule.default || adapterModule; // Ensure adapter is gl
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import IUser from "../types/IUser";
-import { JanusJS } from 'janus-gateway'
+import JanusJS from 'janus-gateway'
 
 type LogEntry = { type: "info" | "success" | "error" | "stream"; message: string };
 

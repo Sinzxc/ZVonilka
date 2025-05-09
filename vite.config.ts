@@ -10,6 +10,6 @@ export default defineConfig({
     sourcemap: true
   },
   define: {
-    
+    'window.Janus': 'window.Janus'
   },
 });
