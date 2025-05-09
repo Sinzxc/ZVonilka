@@ -12,7 +12,7 @@ window.adapter = adapterModule.default || adapterModule; // Ensure adapter is gl
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import IUser from "../types/IUser";
-import Janus, { JanusJS } from 'janus-gateway'
+import { JanusJS } from 'janus-gateway'
 
 type LogEntry = { type: "info" | "success" | "error" | "stream"; message: string };
 
@@ -39,19 +39,19 @@ export default function Calling({
   const [showLogs, setShowLogs] = useState(false);
   const [connected, setConnected] = useState(false);
   const [pluginHandle, setPluginHandle] = useState<JanusJS.PluginHandle | null>(null);
-  const janus = useRef<Janus>(null);
+  const janus = useRef<JanusJS.Janus>(null);
 
   useEffect(() => {
     if(janus.current) return;
-    Janus.init({
+    JanusJS.Janus.init({
       debug: true,
-      dependencies: Janus.useDefaultDependencies(),
+      dependencies: JanusJS.Janus.useDefaultDependencies(),
       callback: () => {
         handleLog({ type: "info", message: "Janus initialized" });
       }
     })
     
-    janus.current = new Janus({
+    janus.current = new JanusJS.Janus({
       server: import.meta.env.VITE_JANUS_SERVER,
       success: () => {
         handleLog({ type: "success", message: "Janus connected" });
@@ -61,7 +61,7 @@ export default function Calling({
         handleLog({ type: "error", message: "Janus connection error: " + err });
       }
     });
-  })
+  }, [])
 
   useEffect(() => {
     if(connected && janus.current) {
