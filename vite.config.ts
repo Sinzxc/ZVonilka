@@ -4,7 +4,7 @@ import fs from 'fs';
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [tailwindcss(), react()],
   server: {
     https: {
       key: fs.readFileSync('/etc/vibecast/ssl/privkey.pem'),
