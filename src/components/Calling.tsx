@@ -12,6 +12,7 @@ window.adapter = adapterModule.default || adapterModule; // Ensure adapter is gl
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import IUser from "../types/IUser";
+import Janus, { JanusJS } from 'janus-gateway'
 
 type LogEntry = { type: "info" | "success" | "error" | "stream"; message: string };
 
@@ -37,8 +38,8 @@ export default function Calling({
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [showLogs, setShowLogs] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [pluginHandle, setPluginHandle] = useState<any | null>(null);
-  const janus = useRef<any>(null);
+  const [pluginHandle, setPluginHandle] = useState<JanusJS.PluginHandle | null>(null);
+  const janus = useRef<Janus>(null);
 
   useEffect(() => {
     if(janus.current) return;
@@ -60,13 +61,13 @@ export default function Calling({
         handleLog({ type: "error", message: "Janus connection error: " + err });
       }
     });
-  }, [])
+  },)
 
   useEffect(() => {
     if(connected && janus.current) {
       janus.current.attach({
         plugin: "janus.plugin.audiobridge",
-        success: (pluginHandle: any) => {
+        success: (pluginHandle) => {
           setPluginHandle(pluginHandle);
           const roomId = currentRoom?.id;
           handleLog({ type: "info", message: `Joining room ${roomId} as ${currentUser.login}` });
