@@ -1,18 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-// Import adapter as a module
 import * as adapterModule from 'webrtc-adapter';
-// Add this before any usage of window.adapter
 declare global {
   interface Window {
     adapter: any;
   }
 }
-window.adapter = adapterModule.default || adapterModule; // Ensure adapter is global
+window.adapter = adapterModule.default || adapterModule;
 
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import IUser from "../types/IUser";
-import Janus, { JanusJS } from 'janus-gateway'
+import Janus, { JanusJS } from 'janus-gateway';
 
 type LogEntry = { type: "info" | "success" | "error" | "stream"; message: string };
 
@@ -21,7 +19,9 @@ export default function Calling({
   currentUser,
   setCurrentRoom,
   updateRooms,
-  stream
+  stream,
+  IsFullMuted,
+  IsMicrophoneMuted
 }: {
   currentRoom: IRoom | null | undefined;
   addUserToRoom: (room: IRoom) => void;
@@ -34,7 +34,6 @@ export default function Calling({
   stream: MediaStream;
 }) {
 
-  // If you use objects for logs:
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [showLogs, setShowLogs] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -43,6 +42,8 @@ export default function Calling({
 
   useEffect(() => {
     if(janus.current) return;
+    console.log(Janus);
+    
     Janus.init({
       debug: true,
       dependencies: Janus.useDefaultDependencies(),
@@ -61,7 +62,7 @@ export default function Calling({
         handleLog({ type: "error", message: "Janus connection error: " + err });
       }
     });
-  },)
+  }, [])
 
   useEffect(() => {
     if(connected && janus.current) {
@@ -162,6 +163,14 @@ export default function Calling({
     }
   }, [connected])
 
+  useEffect(() => {
+    if(IsMicrophoneMuted) {
+      pluginHandle?.muteAudio();
+    } else {
+      pluginHandle?.unmuteAudio();
+    }
+  }, [IsMicrophoneMuted]);
+
   const handleLog = (entry: LogEntry | string) => {
     if (typeof entry === "string") {
       setLogs(prev => [...prev, { type: "info", message: entry }]);
@@ -184,6 +193,16 @@ export default function Calling({
 
     connectionApi.connection?.on("LeavedRoom", (user: IUser, room: IRoom) => {
       console.log(`[Calling] User ${user.login} leaved room`);
+
+      janus.current?.destroy({
+        success: () => {
+          console.log("Janus destroyed successfully");
+        },
+        error: (err: any) => {
+          console.error("Error destroying Janus:", err);
+        }
+      });
+
       setCurrentRoom(room);
       updateRooms(room);
       console.log(`[Calling] Leaved room: ${room.title}`);
@@ -198,7 +217,7 @@ export default function Calling({
 
   return (
     <>
-      <audio id="remoteAudio" autoPlay playsInline controls />
+      <audio id="remoteAudio" autoPlay playsInline controls hidden muted={IsFullMuted} />
       {showLogs && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="relative w-full max-w-2xl max-h-[80vh] bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl p-6 overflow-y-auto text-sm flex flex-col"
