@@ -21,7 +21,8 @@ export default function Calling({
   updateRooms,
   stream,
   IsFullMuted,
-  IsMicrophoneMuted
+  IsMicrophoneMuted,
+  isInCall
 }: {
   currentRoom: IRoom | null | undefined;
   addUserToRoom: (room: IRoom) => void;
@@ -182,6 +183,26 @@ export default function Calling({
   const handleClearLogs = () => setLogs([]);
 
   useEffect(() => {
+    if(isInCall) return;
+    pluginHandle?.send({message: {request:"leave"}});
+    pluginHandle?.hangup();
+  
+    janus.current?.destroy({
+      success: () => {
+        console.log("Janus destroyed successfully" );
+      },
+      error: (err: any) => {
+        console.log("Janus destroy error: " + err);
+      }
+    })
+    janus.current = null;
+  
+    setPluginHandle(null);
+    setConnected(false);
+    setCurrentRoom(null);
+  }, [isInCall])
+
+  useEffect(() => {
     connectionApi.connection?.on(
       "JoinedRoom",
       (response: { user: IUser; room: IRoom }) => {
@@ -193,18 +214,9 @@ export default function Calling({
 
     connectionApi.connection?.on("LeavedRoom", (user: IUser, room: IRoom) => {
       console.log(`[Calling] User ${user.login} leaved room`);
-
-      pluginHandle?.send({message: {request:"leave"}});
-      pluginHandle?.hangup();
-      janus.current = null;
-
-      setPluginHandle(null);
-      setConnected(false);
-      setCurrentRoom(null);
-
       setCurrentRoom(room);
       updateRooms(room);
-      console.log(`[Calling] Leaved room: ${room.title}`);
+      console.log(`[Calling] Leaved room: ${room.title}`); 
     });
 
     return () => {
