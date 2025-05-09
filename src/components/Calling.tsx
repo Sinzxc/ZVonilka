@@ -194,14 +194,13 @@ export default function Calling({
     connectionApi.connection?.on("LeavedRoom", (user: IUser, room: IRoom) => {
       console.log(`[Calling] User ${user.login} leaved room`);
 
-      janus.current?.destroy({
-        success: () => {
-          console.log("Janus destroyed successfully");
-        },
-        error: (err: any) => {
-          console.error("Error destroying Janus:", err);
-        }
-      });
+      pluginHandle?.send({message: {request:"leave"}});
+      pluginHandle?.hangup();
+      janus.current = null;
+
+      setPluginHandle(null);
+      setConnected(false);
+      setCurrentRoom(null);
 
       setCurrentRoom(room);
       updateRooms(room);
