@@ -74,8 +74,6 @@ function App() {
   useEffect(() => {
     connectionApi.connection?.on("CreatedRoom", async (room: IRoom) => {
       const updatedRooms = await roomsApi.getRooms();
-      console.log(updatedRooms);
-      
       if (updatedRooms) setRooms(updatedRooms);
     });
 
@@ -87,20 +85,28 @@ function App() {
       addUserToRoom(room);
     });
 
+    // --- Add this block for RejoinedRoom ---
+    connectionApi.connection?.on("RejoinedRoom", (user: IUser, room: IRoom) => {
+      setCurrentRoom(room);
+      // Optionally, update users in the room or other state if needed
+      // setCurrentUser(user); // if you want to update the user as well
+    });
+
     return () => {
       connectionApi.connection?.off("CreatedRoom");
       connectionApi.connection?.off("JoinedToOtherRoom");
       connectionApi.connection?.off("LeavedFromOtherRoom");
+      // --- Remove handler on cleanup ---
+      connectionApi.connection?.off("RejoinedRoom");
     };
   }, [connectionApi.connection]);
 
   const addUserToRoom = async (newRoom: IRoom) => {
     setRooms((prevRooms) => {
-      const updatedRooms = prevRooms.map((room) =>
-        room.id === newRoom.id ? newRoom : room
+      // Update only the room that matches newRoom.id, keep others unchanged
+      return prevRooms.map((room) =>
+        room.id === newRoom.id ? { ...room, users: newRoom.users } : room
       );
-
-      return updatedRooms;
     });
   };
   return (
@@ -115,6 +121,8 @@ function App() {
             currentUser={currentUser!}
             setCurrentRoom={setCurrentRoom}
             setIsInCall={setIsInCall}
+            isInCall={isInCall}
+            currentRoom={currentRoom} // <-- Pass currentRoom here
           />
         </div>
       )}

@@ -73,6 +73,7 @@ export default function Calling({
           setPluginHandle(pluginHandle);
           const roomId = currentRoom?.id;
           handleLog({ type: "info", message: `Joining room ${roomId} as ${currentUser.login}` });
+          pluginHandle.setMaxBitrate(128000);
           pluginHandle.send({
             message: {
               request: "join",

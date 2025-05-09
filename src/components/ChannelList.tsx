@@ -18,6 +18,8 @@ interface ChannelListProps {
   rooms: IRoom[];
   setCurrentRoom: (room: IRoom) => void;
   setIsInCall: (value: boolean) => void;
+  isInCall: boolean;
+  currentRoom: IRoom | null | undefined; // <-- Add this prop
 }
 
 const ChannelList = ({
@@ -25,6 +27,8 @@ const ChannelList = ({
   rooms: allRooms,
   setCurrentRoom,
   setIsInCall,
+  isInCall,
+  currentRoom, // <-- Add this prop
 }: ChannelListProps) => {
   const navigate = useNavigate();
 
@@ -70,51 +74,87 @@ const ChannelList = ({
             />
           </div>
           <div className="space-y-1 ml-2">
-            {allRooms.map((room) => (
-              <div
-                key={room.id}
-                className="px-2 py-[6px] hover:bg-gray-700/40 cursor-pointer group transition-all duration-150 rounded-md"
-              >
+            {allRooms.map((room) => {
+              const isActive = currentRoom && room.id === currentRoom.id;
+              return (
                 <div
-                  onClick={() => {
-                    setCurrentRoom(room);
-                    connectionApi.connection?.invoke("JoinRoom", room.id);
-                    setIsInCall(true);
-                  }}
-                  className="flex items-center rounded-[4px]"
+                  key={room.id}
+                  className={
+                    `px-2 py-[6px] group transition-all duration-150 rounded-md relative ` +
+                    (isActive
+                      ? "bg-blue-900/30 border-l-4 border-blue-400"
+                      : isInCall
+                      ? "cursor-not-allowed opacity-60"
+                      : "hover:bg-gray-700/40 cursor-pointer")
+                  }
                 >
-                  <FontAwesomeIcon
-                    icon={faVolumeHigh}
-                    className="mr-2 text-gray-400 group-hover:text-gray-200 text-[15px]"
-                  />
-                  <span className="text-[15px] text-gray-400 group-hover:text-gray-200">
-                    {room.title}
-                  </span>
-                </div>
-                {room.users.length !== 0 && (
-                  <div className="flex flex-col gap-2">
-                    {room.users.map((user) => (
-                      <div key={user.id} className="flex items-center gap-3 mt-3 ml-2">
-                        <div className="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
-                          {user.avatarUrl ? (
-                            <img
-                              src={"/avatars/" + user.avatarUrl}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-[10px] font-medium">
-                              {user.login[0].toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-white">{user.login}</p>
-                      </div>
-                    ))}
+                  <div
+                    onClick={() => {
+                      if (isInCall) return;
+                      setCurrentRoom(room);
+                      connectionApi.connection?.invoke("JoinRoom", room.id);
+                      setIsInCall(true);
+                    }}
+                    className={
+                      "flex items-center rounded-[4px] gap-2 " +
+                      (isActive ? "font-semibold" : "")
+                    }
+                    title={isInCall ? "You are already in a call. Leave the current room to join another." : ""}
+                    style={isInCall ? { pointerEvents: "none" } : {}}
+                  >
+                    {isActive && (
+                      <span className="w-2 h-2 rounded-full bg-blue-400 mr-2 inline-block"></span>
+                    )}
+                    <FontAwesomeIcon
+                      icon={faVolumeHigh}
+                      className={
+                        "mr-2 text-[17px] transition " +
+                        (isActive
+                          ? "text-blue-200"
+                          : "text-gray-400 group-hover:text-gray-200")
+                      }
+                    />
+                    <span
+                      className={
+                        "text-[15px] transition " +
+                        (isActive
+                          ? "text-blue-100"
+                          : "text-gray-400 group-hover:text-gray-200")
+                      }
+                    >
+                      {room.title}
+                    </span>
+                    {isActive && (
+                      <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-500/80 text-white text-xs font-semibold shadow">
+                        Вы здесь
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                  {room.users.length !== 0 && (
+                    <div className="flex flex-col gap-2">
+                      {room.users.map((user) => (
+                        <div key={user.id} className="flex items-center gap-3 mt-3 ml-2">
+                          <div className="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
+                            {user.avatarUrl ? (
+                              <img
+                                src={"/avatars/" + user.avatarUrl}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-[10px] font-medium">
+                                {user.login[0].toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-white">{user.login}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ); // <-- Add this line to close the map callback
+            })}
           </div>
         </div>
       </div>
