@@ -3,7 +3,6 @@ services:
     build: .
     ports:
       - "443:443"
-      - "80:80"
     volumes:
       - /etc/vibecast/ssl/:/etc/vibecast/ssl/:ro
       - /etc/vibecast/wwwroot/avatars/:/usr/share/nginx/html/avatars/
