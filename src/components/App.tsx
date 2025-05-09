@@ -72,8 +72,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    connectionApi.connection?.on("CreatedRoom", (room: IRoom) => {
-      setRooms([...rooms, room]);
+    connectionApi.connection?.on("CreatedRoom", async (room: IRoom) => {
+      const updatedRooms = await roomsApi.getRooms();
+      console.log(updatedRooms);
+      
+      if (updatedRooms) setRooms(updatedRooms);
     });
 
     connectionApi.connection?.on("JoinedToOtherRoom", (room: IRoom) => {

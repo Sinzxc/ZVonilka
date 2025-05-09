@@ -10,6 +10,8 @@ import IRoom from "../types/IRoom";
 import { authApi } from "../api/services/authApi";
 import { roomsApi } from "../api/services/roomsApi";
 import { connectionApi } from "../api/services/connectionApi";
+import { useState } from "react";
+import CreateRoomModal from "./modals/CreateRoomModal";
 
 interface ChannelListProps {
   currentUser: IUser;
@@ -25,11 +27,25 @@ const ChannelList = ({
   setIsInCall,
 }: ChannelListProps) => {
   const navigate = useNavigate();
-  const addChannel = () => {
-    const roomName = prompt("Введите название комнаты:", "Новая комната");
 
-    if (roomName) {
-      roomsApi.createRoom(roomName);
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [roomName, setRoomName] = useState("");
+  const [error, setError] = useState("");
+
+  const handleCreateRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!roomName.trim()) {
+      setError("Название комнаты не может быть пустым");
+      return;
+    }
+    try {
+      roomsApi.createRoom(roomName.trim());
+      setShowModal(false);
+      setRoomName("");
+      setError("");
+    } catch (err: any) {
+      setError(err.message || "Ошибка создания комнаты");
     }
   };
 
@@ -50,20 +66,22 @@ const ChannelList = ({
             <FontAwesomeIcon
               icon={faPlus}
               className="text-gray-400 cursor-pointer hover:text-white text-[10px]"
-              onClick={addChannel}
+              onClick={() => setShowModal(true)}
             />
           </div>
           <div className="space-y-1 ml-2">
             {allRooms.map((room) => (
-              <div className="px-2 py-[6px] hover:bg-gray-700/40 cursor-pointer group transition-all duration-150">
+              <div
+                key={room.id}
+                className="px-2 py-[6px] hover:bg-gray-700/40 cursor-pointer group transition-all duration-150 rounded-md"
+              >
                 <div
-                  key={room.id}
                   onClick={() => {
                     setCurrentRoom(room);
                     connectionApi.connection?.invoke("JoinRoom", room.id);
                     setIsInCall(true);
                   }}
-                  className="flex items-center rounded-[4px] "
+                  className="flex items-center rounded-[4px]"
                 >
                   <FontAwesomeIcon
                     icon={faVolumeHigh}
@@ -73,10 +91,10 @@ const ChannelList = ({
                     {room.title}
                   </span>
                 </div>
-                {room.users.length != 0 && (
+                {room.users.length !== 0 && (
                   <div className="flex flex-col gap-2">
                     {room.users.map((user) => (
-                      <div className="flex items-center gap-3 mt-3 ml-2">
+                      <div key={user.id} className="flex items-center gap-3 mt-3 ml-2">
                         <div className="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white shadow-md overflow-hidden">
                           {user.avatarUrl ? (
                             <img
@@ -133,6 +151,17 @@ const ChannelList = ({
           <FontAwesomeIcon icon={faSignOutAlt} />
         </button>
       </div>
+
+      {showModal && (
+        <CreateRoomModal
+          setShowModal={setShowModal}
+          roomName={roomName}
+          setRoomName={setRoomName}
+          handleCreateRoom={handleCreateRoom}
+          error={error}
+          setError={setError}
+        />
+      )}
     </div>
   );
 };
