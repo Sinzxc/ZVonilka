@@ -10,6 +10,7 @@ import Chat from "./Chat";
 import IRoom from "../types/IRoom";
 import { connectionApi } from "../api/services/connectionApi";
 import { useState } from "react";
+import IUser from "../types/IUser";
 
 const VoiceCall = ({
   currentRoom,
@@ -18,6 +19,7 @@ const VoiceCall = ({
   IsFullMuted,
   setIsMicrophoneMuted,
   setIsFullMuted,
+  currentUser
 }: {
   currentRoom: IRoom | null | undefined;
   setCurrentRoom: (room: IRoom | null) => void;
@@ -26,6 +28,7 @@ const VoiceCall = ({
   setIsFullMuted: (value: boolean) => void;
   IsMicrophoneMuted: boolean;
   IsFullMuted: boolean;
+  currentUser: IUser
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -142,9 +145,9 @@ const VoiceCall = ({
         </div>
 
         {/* Chat Sidebar */}
-        {isChatOpen && (
-          <div className="w-[300px] border-l border-gray-600">
-            <Chat isShowAllUsers={false} setIsShowAllUsers={() => {}} />
+        {isChatOpen && connectionApi.connection && currentRoom && (
+          <div className="w-[400px] border-l border-gray-800">
+            <Chat currentRoom={currentRoom} currentUser={currentUser} connection={connectionApi.connection} isShowAllUsers={false} setIsShowAllUsers={() => {}} />
           </div>
         )}
       </div>

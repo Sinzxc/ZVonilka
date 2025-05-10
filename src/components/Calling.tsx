@@ -79,6 +79,7 @@ export default function Calling({
               request: "join",
               room: roomId,
               display: currentUser.login,
+              id: currentUser.id,
               per_peer_audio: true
             }
           });
@@ -241,17 +242,13 @@ export default function Calling({
       <audio id="remoteAudio" autoPlay playsInline controls hidden muted={IsFullMuted} />
       {showLogs && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="relative w-full max-w-2xl max-h-[80vh] bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl p-6 overflow-y-auto text-sm flex flex-col"
-               style={{
-                 boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-                 border: '1.5px solid rgba(255,255,255,0.12)'
-               }}>
+          <div className="relative w-full max-w-2xl max-h-[80vh] bg-gray-900/95 border-gray-700 p-6 overflow-y-auto text-sm flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <div className="font-semibold text-gray-100 flex items-center gap-2">
                 <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
                 </svg>
-                Peer Connection Logs
+                Информация о подключении
               </div>
               <button
                 className="text-gray-400 hover:text-red-400 transition text-lg font-bold px-2"
@@ -337,13 +334,13 @@ export default function Calling({
       <button
         className="fixed bottom-6 right-6 z-50 bg-gray-800/90 hover:bg-gray-700 text-gray-200 rounded-full shadow-lg p-3 flex items-center transition backdrop-blur"
         onClick={() => setShowLogs((v) => !v)}
-        title={showLogs ? "Hide logs" : "Show logs"}
+        title={showLogs ? "Скрыть логи" : "Показать логи"}
         style={{ outline: "none" }}
       >
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
         </svg>
-        <span className="text-xs">{showLogs ? "Hide logs" : "Logs"}</span>
+        <span className="text-xs">{showLogs ? "Скрыть логи" : "Показать логи"}</span>
       </button>
     </>
   );

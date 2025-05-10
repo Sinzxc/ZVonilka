@@ -122,7 +122,7 @@ function App() {
     <div className="flex h-screen w-screen overflow-hidden">
       {location.pathname != "/login" && location.pathname != "/register" && (
         <div
-          className="flex h-full bg-gray-800 shadow-lg"
+          className="flex h-full bg-gray-800 shadow-lg border-b border-gray-100"
           style={{ width: "300px" }}
         >
           <ChannelList
@@ -131,7 +131,7 @@ function App() {
             setCurrentRoom={setCurrentRoom}
             setIsInCall={setIsInCall}
             isInCall={isInCall}
-            currentRoom={currentRoom} // <-- Pass currentRoom here
+            currentRoom={currentRoom} 
           />
         </div>
       )}
@@ -139,8 +139,9 @@ function App() {
         <Route
           path="/"
           element={
-            isInCall ? (
+            isInCall && currentUser ? (
               <VoiceCall
+                currentUser={currentUser}
                 setCurrentRoom={setCurrentRoom}
                 setIsInCall={setIsInCall}
                 currentRoom={currentRoom}

@@ -57,9 +57,11 @@ const ChannelList = ({
   };
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gray-800">
+    <div className="h-screen bg-gray-900 border-r border-gray-800 flex flex-col">
       {/* Server Header */}
-      <img className="border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors duration-200 w-64 flex pb-2 pt-2" src={logo} alt="" />
+      <div className="h-12 w-64 flex items-center border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors duration-200">
+        <img src={logo} alt="" className="h-8" />
+      </div>
       {/* Channel List */}
       <div className="flex-1 overflow-y-auto px-2 py-3">
         <div className="select-none">
