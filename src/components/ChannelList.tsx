@@ -92,7 +92,7 @@ const ChannelList = ({
                     onClick={() => {
                       if (isInCall) return;
                       setCurrentRoom(room);
-                      connectionApi.connection?.invoke("JoinRoom", room.id);
+                      connectionApi.connection?.invoke("Handle", "JoinRoom", room.id);
                       setIsInCall(true);
                     }}
                     className={

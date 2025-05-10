@@ -30,7 +30,7 @@ const VoiceCall = ({
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const onRoomLeave = () => {
-    connectionApi.connection?.invoke("LeaveRoom");
+    connectionApi.connection?.invoke("Handle", "LeaveRoom", {});
     setIsInCall(false);
   };
 

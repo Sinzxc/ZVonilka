@@ -78,7 +78,8 @@ export default function Calling({
             message: {
               request: "join",
               room: roomId,
-              display: currentUser.login
+              display: currentUser.login,
+              per_peer_audio: true
             }
           });
           (pluginHandle as any).onmessage = (msg: any, jsep: any) => {
